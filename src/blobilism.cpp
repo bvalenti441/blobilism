@@ -8,6 +8,7 @@ struct Circle {
     float x;
     float y;
     float diameter;
+    float transparency;
 };
 
 class MyWindow : public Window {
@@ -15,9 +16,9 @@ private:
 
     // todo: create member variables for 
     // current circle size
-    int currBrushSize = 35;
+    int currBrushSize = 10;
     // current transparency
-    int currTransparency = 0;
+    float currTransparency = 1.0f;
     // current color
     float currColor[3];
     // list of circles to draw each frame
@@ -44,7 +45,26 @@ public:
             this->currBrushSize = 1;
             return;
         }
+        else if (currBrushSize == 1) {
+            this->currBrushSize = change;
+        }
         this->currBrushSize += change;
+    }
+
+    float getTransparency() {
+        return this->currTransparency;
+    }
+
+    void changeTransparency(float change) {
+        if (currTransparency + change < 0){
+            this->currTransparency = 0;
+            return;
+        } 
+        else if (currTransparency + change > 1.0f) {
+            this->currTransparency = 1.0f;
+            return;
+        }
+        this->currTransparency += change;
     }
 
     float* getCurrColor() {
@@ -57,8 +77,8 @@ public:
         this->currColor[2] = newColor[2];
     }
 
-    std::vector<Circle> getCircles() {
-        return this->circles;
+    std::vector<Circle>* getCircles() {
+        return &(this->circles);
     }
 
     void setCircles(std::vector<Circle> vec) {
@@ -66,6 +86,7 @@ public:
     }
 
     void setup() override {
+        setCircles({});
         std::cout << "Window size: " << width() << ", " << height() << std::endl;
     }
 
@@ -80,7 +101,8 @@ public:
             newCircle.x = x;
             newCircle.y = y;
             newCircle.diameter = getCurrBrushSize();
-            getCircles().push_back(newCircle);
+            newCircle.transparency = getTransparency();
+            (*getCircles()).push_back(newCircle);
         }
     }
 
@@ -90,31 +112,31 @@ public:
             float mx = mouseX();  // current mouse pos x
             float my = mouseY();  // current mouse pos y
             
-            if (sqrt((mx - width() / 7.0f) + (my - 35)) <= 35) { //pallette circles
-                color(red[0], red[1], red[2]);
+            // pallete circles
+            if (sqrt(pow(mx - (width() / 7.0f), 2) + pow(my - 35, 2)) <= 35) {
                 setCurrColor(red);
             }
-            else if (sqrt((mx - width() / 7.0f * 2.0f) + (my - 35)) <= 35) { //pallette circles
-                color(green[0], green[1], green[2]);
+            else if (sqrt(pow(mx - width() / 7.0f * 2.0f, 2) + pow(my - 35, 2)) <= 35) { 
                 setCurrColor(green);
+                std::cout << "green" << std::endl;
             }
-            else if (sqrt((mx - width() / 7.0f * 3.0f) + (my - 35)) <= 35) { //pallette circles
-                color(blue[0], blue[1], blue[2]);
+            else if (sqrt(pow(mx - width() / 7.0f * 3.0f, 2) + pow(my - 35, 2)) <= 35) { //pallette circles
                 setCurrColor(blue);
+                std::cout << "blue" << std::endl;
             }
-            else if (sqrt((mx - width() / 7.0f * 4.0f) + (my - 35)) <= 35) { //pallette circles
-                color(yellow[0], yellow[1], yellow[2]);
+            else if (sqrt(pow(mx - width() / 7.0f * 4.0f, 2) + pow(my - 35, 2)) <= 35) { //pallette circles
                 setCurrColor(yellow);
+                std::cout << "yellow" << std::endl;
             }
-            else if (sqrt((mx - width() / 7.0f * 5.0f) + (my - 35)) <= 35) { //pallette circles
-                color(black[0], black[1], black[2]);
+            else if (sqrt(pow(mx - width() / 7.0f * 5.0f, 2) + pow(my - 35, 2)) <= 35) { //pallette circles
                 setCurrColor(black);
+                std::cout << "black" << std::endl;
             }
-            else if (sqrt((mx - width() / 7.0f * 6.0f) + (my - 35)) <= 35) { //pallette circles
-                color(gray[0], gray[1], gray[2]);
+            else if (sqrt(pow(mx - width() / 7.0f * 6.0f, 2) + pow(my - 35, 2)) <= 35) { //pallette circles
                 setCurrColor(gray);
+                std::cout << "gray" << std::endl;
             }
-            else if (my <= 35) {
+            else if (my <= 70) {
                 return;
             }
             else {
@@ -124,10 +146,9 @@ public:
                 newCircle.color[0] = circleColor[0];
                 newCircle.color[1] = circleColor[1];
                 newCircle.color[2] = circleColor[2];
-                newCircle.x = mx;
-                newCircle.y = my;
                 newCircle.diameter = getCurrBrushSize();
-                getCircles().push_back(newCircle);
+                newCircle.transparency = getTransparency();
+                (*getCircles()).push_back(newCircle);
             }
         }
     }
@@ -135,25 +156,28 @@ public:
     void keyDown(int key, int mods) {
         if (key == GLFW_KEY_UP) {
             // increase size of circle
-            changeBrushSize(35);
+            changeBrushSize(10);
         }
         else if (key == GLFW_KEY_DOWN) {
             // decrease size of circle
-            changeBrushSize(-35);
+            changeBrushSize(-10);
         }
         else if (key == GLFW_KEY_LEFT) {
-            // decrease alpha
+            // decrease transparency
+            changeTransparency(-0.1f);
         }
         else if (key == GLFW_KEY_RIGHT) {
-            // increase alpha
+            // increase transparency
+            changeTransparency(0.1f);
         }
         else if (key == GLFW_KEY_C) {
-            // clear vector of circles
+            // clear canvas
             setCircles({});
         }
     }
 
     void draw() override {
+
         background(0.95f, 0.95f, 0.95f); // parameters: r, g, b
 
         // todo : draw pallette
@@ -161,32 +185,34 @@ public:
         square(width()/2.0f, 35, width(), 70);
         
         color(red[0], red[1], red[2]);
-        circle(width() / 10.0f, 35, 35);
+        circle(width() / 7.0f, 35, 35);
         color(green[0], green[1], green[2]);
-        circle(width() / 5.0f, 35, 35);
+        circle(width() / 7.0f * 2.0f, 35, 35);
         color(blue[0], blue[1], blue[2]);
-        circle(width() / 10.0f * 3, 35, 35);
+        circle(width() / 7.0f * 3.0f, 35, 35);
         color(yellow[0], yellow[1], yellow[2]);
-        circle(width() / 10.0f * 4.0f, 35, 35);
+        circle(width() / 7.0f * 4.0f, 35, 35);
         color(black[0], black[1], black[2]);
-        circle(width() / 2.0f, 35, 1);
+        circle(width() / 7.0f * 5.0, 35, 1);
         color(gray[0], gray[1], gray[2]);
-        circle(width() / 10.0f * 6.0f, 35, 35);
+        circle(width() / 7.0f * 6.0f, 35, 35);
 
-        for (Circle c : getCircles()) {
-            color(c.color[0], c.color[1], c.color[2]);
+        // draw all stored circles the user input
+        for (Circle c : (*getCircles())) {
+            color(c.color[0], c.color[1], c.color[2], c.transparency);
             circle(c.x, c.y, c.diameter);
         }
     }
 };
 
 // initialize public color variables
-const float MyWindow::red[3] = {0.6f, 0, 0};
-const float MyWindow::green[3] = { 0, 0.5f, 0 };
+const float MyWindow::red[3] = {1.0f, 0, 0};
+const float MyWindow::green[3] = { 0, 1.0f, 0 };
 const float MyWindow::blue[3] = { 0, 0, 1.0f };
-const float MyWindow::yellow[3] = { 0.5f, 1.0f, 0 };
-const float MyWindow::black[3] = { 1.0f, 1.0f, 1.0f };
-const float MyWindow::gray[3] = { 0.9f, 0.5f, 0.7f };
+const float MyWindow::yellow[3] = { 1.0f, 1.0f, 0 };
+const float MyWindow::black[3] = { 0, 0, 0 };
+unsigned char grayHex = '0x80';
+const float MyWindow::gray[3] = { grayHex/255.0f, grayHex/255.0f, grayHex/255.0f };
 
 int main() {
     MyWindow window(500, 500);
