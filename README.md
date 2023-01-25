@@ -11,6 +11,8 @@ This demo implements a simple drawing program based on a circle brush.
 
 TODO: Put images of what you've made here
 
+![Screenshot (24)](C:\Users\BCVaw\OneDrive\Pictures\Screenshots\Screenshot (24).png)
+
 ## How to build
 
 This project relies on [OpenGL 4.0](https://www.khronos.org/registry/OpenGL-Refpages/gl4/), [GLEW](http://glew.sourceforge.net/), and [GLFW](https://www.glfw.org/) builds using CMake. 
@@ -68,3 +70,4 @@ $ cmake ..
 $ make
 $ ../bin/blobilism
 ```
+

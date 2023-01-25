@@ -14,8 +14,7 @@ struct Circle {
 class MyWindow : public Window {
 
 public:
-
-    // color palette
+    // color palette rgb tuples to be initialized later
     static const float red[3];
     static const float green[3];
     static const float blue[3];
@@ -216,7 +215,6 @@ public:
     }
 
     private:
-
         // current circle size
         int currBrushSize = 10;
         // current transparency
@@ -225,7 +223,6 @@ public:
         float currColor[3];
         // list of circles to draw each frame
         std::vector<Circle> circles;
-
 };
 
 // initialize pallete colors
